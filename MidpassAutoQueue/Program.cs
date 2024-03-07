@@ -116,6 +116,7 @@ async Task<TimeSpan> Work()
     await MakeDebugScreenshot(page);
 
     var confirmButton = page.GetByText("Подтвердить заявку");
+    await confirmButton.ScrollIntoViewIfNeededAsync();
     if (await page.Locator("#confirmAppointments").And(page.Locator(".l-btn-disabled")).CountAsync() == 1)
     {
         await MakeDebugScreenshot(page);
