@@ -8,13 +8,13 @@ using System.Text.RegularExpressions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-string tgToken = Environment.GetEnvironmentVariable("TG_Token") ?? throw new Exception("Нет телеграм токена");
-long userId = long.Parse(Environment.GetEnvironmentVariable("TG_User") ?? throw new Exception("Нет айди пользователя тг"));
-string email = Environment.GetEnvironmentVariable("Email") ?? throw new Exception("Нет почты");
-string pass = Environment.GetEnvironmentVariable("Pass") ?? throw new Exception("Нет пароля");
-string country = Environment.GetEnvironmentVariable("Country") ?? throw new Exception("Нет страны");
-string facility = Environment.GetEnvironmentVariable("Facility") ?? throw new Exception("Нет учереждения");
-string cToken = Environment.GetEnvironmentVariable("Captcha_Token") ?? throw new Exception("Нет токена капчи");
+string tgToken = Environment.GetEnvironmentVariable("TG_TOKEN") ?? throw new Exception("Нет телеграм токена");
+long userId = long.Parse(Environment.GetEnvironmentVariable("TG_USER") ?? throw new Exception("Нет айди пользователя тг"));
+string email = Environment.GetEnvironmentVariable("EMAIL") ?? throw new Exception("Нет почты");
+string pass = Environment.GetEnvironmentVariable("PASS") ?? throw new Exception("Нет пароля");
+string country = Environment.GetEnvironmentVariable("COUNTRY") ?? throw new Exception("Нет страны");
+string facility = Environment.GetEnvironmentVariable("FACILITY") ?? throw new Exception("Нет учереждения");
+string cToken = Environment.GetEnvironmentVariable("CAPTCHA_TOKEN") ?? throw new Exception("Нет токена капчи");
 
 const string captcha = "captcha.png";
 
