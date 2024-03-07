@@ -75,7 +75,7 @@ public class TelegramBot
     {
         await _botClient.SendPhotoAsync(
             chatId: chatId,
-            photo: InputFile.FromString(imgPath));
+            photo: InputFile.FromStream(System.IO.File.OpenRead(imgPath)));
     }
 
 
