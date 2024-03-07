@@ -1,0 +1,17 @@
+﻿version: '3.8'
+
+services:
+  midpassqueue:
+    name: "auto_queue"
+    build:
+      context: MidpassAutoQueue
+      dockerfile: Dockerfile
+    environment:
+     - TG_TOKEN=
+     - TG_USER=
+     - EMAIL=
+     - PASS=
+     - COUNTRY=
+     - FACILITY=
+     - CAPTCHA_TOKEN=
+    restart:always
