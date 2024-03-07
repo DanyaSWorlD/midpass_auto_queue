@@ -15,8 +15,10 @@ string pass = Environment.GetEnvironmentVariable("PASS") ?? throw new Exception(
 string country = Environment.GetEnvironmentVariable("COUNTRY") ?? throw new Exception("Нет страны");
 string facility = Environment.GetEnvironmentVariable("FACILITY") ?? throw new Exception("Нет учереждения");
 string cToken = Environment.GetEnvironmentVariable("CAPTCHA_TOKEN") ?? throw new Exception("Нет токена капчи");
+bool.TryParse(Environment.GetEnvironmentVariable("DEBUG"), out bool debug);
 
 const string captcha = "captcha.png";
+const string screenshot = "screenshot.png";
 
 Console.WriteLine();
 
@@ -65,6 +67,7 @@ async Task<TimeSpan> Work()
         var solver = new Solver(cToken);
         var code = await solver.SolveCaptcha(captcha);
         await page.Locator("#Captcha").FillAsync(code.Value.code);
+        await MakeDebugScreenshot(page);
         await page.GetByText("Войти").ClickAsync();
 
         if (page.Url == "https://q.midpass.ru/ru/Account/DoPrivatePersonLogOn")
@@ -72,6 +75,7 @@ async Task<TimeSpan> Work()
             if (await page.GetByText("Не заполнено \"Символы с картинки\"").IsVisibleAsync())
             {
                 await solver.Report(code.Value.id, false);
+                await MakeDebugScreenshot(page);
                 await telegramBot.SendMessageAsync(userId, $"Проблемы с капчей, пробую еще раз.");
                 continue;
             }
@@ -79,6 +83,7 @@ async Task<TimeSpan> Work()
             if (await page.GetByText("Неверный адрес электронной почты или пароль").IsVisibleAsync())
             {
                 await solver.Report(code.Value.id);
+                await MakeDebugScreenshot(page);
                 await telegramBot.SendMessageAsync(userId, $"Пароль не подошел, жду новый");
                 pass = await telegramBot.GetResponseAsync(userId) ?? "";
                 await telegramBot.SendMessageAsync(userId, $"Не забудь обновить конфиг");
@@ -89,6 +94,7 @@ async Task<TimeSpan> Work()
         if (page.Url == "https://q.midpass.ru/ru/Account/BanPage")
         {
             await solver.Report(code.Value.id);
+            await MakeDebugScreenshot(page);
             await telegramBot.SendMessageAsync(userId, "Они подозревают, что я робот. Нужен новый пароль");
             pass = await telegramBot.GetResponseAsync(userId) ?? "";
             await telegramBot.SendMessageAsync(userId, "Ок, следующая попытка через час. И не забудь обновить пароль в конфиге!");
@@ -99,6 +105,7 @@ async Task<TimeSpan> Work()
         solved = true;
     }
 
+    await MakeDebugScreenshot(page);
     await page.GetByText("Лист ожидания").ClickAsync();
     var xhrResponse = await page.WaitForResponseAsync("https://q.midpass.ru/ru/Appointments/FindWaitingAppointments");
     var body = System.Text.Encoding.Default.GetString(await xhrResponse.BodyAsync());
@@ -106,14 +113,17 @@ async Task<TimeSpan> Work()
     var placeInQueue = regex.Match(body).Groups.Values.Last();
     await telegramBot.SendMessageAsync(userId, $"Место в очереди: {placeInQueue}");
     await page.GetByRole(AriaRole.Checkbox).Last.ClickAsync();
+    await MakeDebugScreenshot(page);
 
     var confirmButton = page.GetByText("Подтвердить заявку");
     if (await page.Locator("#confirmAppointments").And(page.Locator(".l-btn-disabled")).CountAsync() == 1)
     {
+        await MakeDebugScreenshot(page);
         await telegramBot.SendMessageAsync(userId, $"Кнопка не активна, с последнего подтверждения прошло менее 24ч, следующая попытка через 8 часов");
         return TimeSpan.FromHours(8);
     }
 
+    await MakeDebugScreenshot(page);
     await page.GetByText("Подтвердить заявку").ClickAsync();
 
     solved = false;
@@ -123,19 +133,31 @@ async Task<TimeSpan> Work()
         var solver = new Solver(cToken);
         var code = await solver.SolveCaptcha(captcha);
         await page.Locator("#captchaValue").FillAsync(code.Value.code);
+        await MakeDebugScreenshot(page);
         await page.GetByText("Подтвердить").Last.ClickAsync();
         await page.WaitForResponseAsync("");
         if (await page.GetByText("Не заполнено \"Символы с картинки\"").IsVisibleAsync())
         {
             await solver.Report(code.Value.id, false);
+            await MakeDebugScreenshot(page);
             await telegramBot.SendMessageAsync(userId, $"Проблемы с капчей, пробую еще раз.");
             await page.GetByText("Ок").And(page.GetByRole(AriaRole.Button)).First.ClickAsync();
+            await MakeDebugScreenshot(page);
             continue;
         }
 
+        await MakeDebugScreenshot(page);
         await telegramBot.SendMessageAsync(userId, $"Заявка подтверждена, следующее подтверждение через сутки");
         solved = true;
     }
 
     return TimeSpan.FromDays(1);
+}
+
+async Task MakeDebugScreenshot(IPage page)
+{
+    if (!debug) return;
+
+    await page.ScreenshotAsync(new() { Path = screenshot });
+    await telegramBot.SendImageAsync(userId, screenshot);
 }

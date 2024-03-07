@@ -71,6 +71,13 @@ public class TelegramBot
             cancellationToken: _cancellationTokenSource.Token);
     }
 
+    public async Task SendImageAsync(long chatId, string imgPath)
+    {
+        await _botClient.SendPhotoAsync(
+            chatId: chatId,
+            photo: InputFile.FromString(imgPath));
+    }
+
 
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
