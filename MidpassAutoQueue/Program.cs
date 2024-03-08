@@ -135,8 +135,10 @@ async Task<TimeSpan> Work()
         var code = await solver.SolveCaptcha(captcha);
         await page.Locator("#captchaValue").FillAsync(code.Value.code);
         await MakeDebugScreenshot(page);
-        await page.GetByText("Подтвердить").Last.ClickAsync();
-        await page.WaitForResponseAsync("");
+        await page.RunAndWaitForResponseAsync(async () =>
+        {
+            await page.GetByText("Подтвердить").Last.ClickAsync();
+        }, response => response.Url.StartsWith("https://q.midpass.ru"));
         if (await page.GetByText("Не заполнено \"Символы с картинки\"").IsVisibleAsync())
         {
             await solver.Report(code.Value.id, false);
