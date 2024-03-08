@@ -87,6 +87,8 @@ async Task<TimeSpan> Work()
                 await telegramBot.SendMessageAsync(userId, $"Пароль не подошел, жду новый");
                 pass = await telegramBot.GetResponseAsync(userId) ?? "";
                 await telegramBot.SendMessageAsync(userId, $"Не забудь обновить конфиг");
+                await page.Locator("#Password").FillAsync(string.Empty);
+                await page.Locator("#Password").FillAsync(pass);
                 continue;
             }
         }
