@@ -43,7 +43,7 @@ while (true)
 async Task<TimeSpan> Work()
 {
     using var playwright = await Playwright.CreateAsync();
-    await using var browser = await playwright.Chromium.LaunchAsync(/*new() { Headless = false, SlowMo = 50, }*/);
+    await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = false, SlowMo = 50, });
     var page = await browser.NewPageAsync();
     await page.GotoAsync("https://q.midpass.ru");
 
@@ -109,11 +109,8 @@ async Task<TimeSpan> Work()
 
     await MakeDebugScreenshot(page);
     await page.GetByText("Лист ожидания").ClickAsync();
-    var xhrResponse = await page.WaitForResponseAsync("https://q.midpass.ru/ru/Appointments/FindWaitingAppointments");
-    var body = System.Text.Encoding.Default.GetString(await xhrResponse.BodyAsync());
-    var regex = new Regex("\"PlaceInQueue\":([0-9]+),");
-    var placeInQueue = regex.Match(body).Groups.Values.Last();
-    await telegramBot.SendMessageAsync(userId, $"Место в очереди: {placeInQueue}");
+    var queueResponse = await new QueueService().GetQueueStateMessage(await page.WaitForResponseAsync("https://q.midpass.ru/ru/Appointments/FindWaitingAppointments"));
+    await telegramBot.SendMessageAsync(userId, $"Место в очереди: {queueResponse.Position}\nДней до назначения: {queueResponse.DaysUntil}\nОжидаемая дата назначения: {queueResponse.ExpectedDate}");
     await page.GetByRole(AriaRole.Checkbox).Last.ClickAsync();
     await MakeDebugScreenshot(page);
 
