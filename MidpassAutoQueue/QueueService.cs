@@ -11,7 +11,8 @@ namespace MidpassAutoQueue;
 public class QueueService
 {
     private const string NA = "Неизвестно";
-    private const string DB = "data/statistics.db";
+    private const string Data = "data";
+    private const string DB = $"{Data}/statistics.db";
 
     public async Task<QueueSatateMessage> GetQueueStateMessage(IResponse? response)
     {
@@ -19,6 +20,9 @@ public class QueueService
             return new(NA, NA, NA);
 
         var position = await ExtractPosition(response);
+
+        if(!Directory.Exists(Data))
+            Directory.CreateDirectory(Data);
 
         using var db = new LiteDatabase(DB);
         var positions = db.GetCollection<PositionEntity>();
