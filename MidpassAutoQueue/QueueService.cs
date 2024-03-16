@@ -11,7 +11,7 @@ namespace MidpassAutoQueue;
 public class QueueService
 {
     private const string NA = "Неизвестно";
-    private const string DB = ".data/statistics.db";
+    private const string DB = "data/statistics.db";
 
     public async Task<QueueSatateMessage> GetQueueStateMessage(IResponse? response)
     {
