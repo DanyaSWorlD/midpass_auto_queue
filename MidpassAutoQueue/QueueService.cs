@@ -11,7 +11,7 @@ namespace MidpassAutoQueue;
 public class QueueService
 {
     private const string NA = "Неизвестно";
-    private const string DB = "statistics.db";
+    private const string DB = ".data/statistics.db";
 
     public async Task<QueueSatateMessage> GetQueueStateMessage(IResponse? response)
     {
@@ -38,7 +38,7 @@ public class QueueService
             return new(position.ToString(), NA, NA);
         }
 
-        var timeDiff = now - first.PositionDate;
+        var timeDiff = first.PositionDate - now;
         var posDiff = first.Position - position;
 
         var movementPerDay = posDiff / timeDiff.TotalDays;

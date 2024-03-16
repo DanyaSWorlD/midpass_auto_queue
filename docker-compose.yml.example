@@ -14,4 +14,7 @@ services:
      - COUNTRY=
      - FACILITY=
      - CAPTCHA_TOKEN=
+	 - DEBUG=True
+    volumes:
+      - ./data:/home/user/autoqueue/data
     restart:always
