@@ -16,5 +16,5 @@ services:
      - CAPTCHA_TOKEN=
 	 - DEBUG=False
     volumes:
-      - ./data:/home/user/autoqueue/data
+      - ./data:/app/data
     restart:always
