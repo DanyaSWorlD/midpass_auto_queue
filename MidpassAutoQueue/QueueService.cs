@@ -42,7 +42,7 @@ public class QueueService
             return new(position.ToString(), NA, NA);
         }
 
-        var timeDiff = first.PositionDate - now;
+        var timeDiff = now - first.PositionDate;
         var posDiff = first.Position - position;
 
         var movementPerDay = posDiff / timeDiff.TotalDays;
